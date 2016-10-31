@@ -1,0 +1,76 @@
+body {
+	background:url("../images/background.jpg") no-repeat;
+	background-color:rgba(230, 230, 230, 0.3)
+}
+
+/* 内容 */
+.contents {
+	height:50px;
+}
+/* 输入框列控制 */
+.inputTd {
+	width:250px;
+}
+/* 输入样式 */
+.inputs {
+	font-size:20px;
+	width:280px;
+	height:40px;
+	border:1px solid;
+	border-color:#61b1e2;
+	padding-left:18px;
+	margin-top:15px;
+	margin-left:180px;
+	color:#444;
+}
+/* 所有信息提示样式 */
+.informationTd {
+	width:300px;
+	padding-left:18px;
+	font-size:20px;
+}
+
+/* 主框样式*/
+#mainDiv {
+	border:1px #d0d0d0 solid;
+	width:680px;
+	height:430px;
+	background-color:rgba(230, 230, 230, 0.3)
+}
+/* 标题框样式 */
+#titleDiv {
+	width:680px;
+	height:30px;
+	background:url("../images/title_background.png") repeat-x;
+	background-position:0px -132px;
+	text-align:center;
+}
+/* 标题文字样式 */
+#titleSpan {
+	padding-left:18px;
+	font-size:18px;
+	line-height:30px;
+}
+/* 验证码样式 */
+#verifyCodeImage {
+	width:75px;
+	height:40px;
+	border:1px #808080 solid;
+	position:relative;
+	top:15px; left:5px;
+}
+/* 验证码输入样式 */
+#verifyCodeInput {
+	width:190px;
+}
+/* 提交按钮样式 */
+#submitBtn {
+	margin-left:180px;
+	margin-top:-40px;
+	width:300px;
+	height:40px;
+	font-size:20px;
+	border: 1px solid;
+    border-radius:15px;
+    background:#fff;
+}

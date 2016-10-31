@@ -1,0 +1,246 @@
+/* 输入框Object获取 */
+var userNameInput = $("#userNameInput");							// 用户名输入框
+var passwordInput = $("#passwordInput");							// 密码输入框
+var repeatPasswordInput = $("#repeatPasswordInput");				// 确认密码输入框
+var emailInput = $("#emailInput");									// 邮箱输入框
+var verifyCodeInput = $("#verifyCodeInput");						// 验证码输入框
+var submitBtn = $("#submitBtn");									// 提交按钮
+
+/* 文字框Object获取 */
+var userNameSpan = $("#userNameSpan");								// 用户名信息提示
+var passwordSpan = $("#passwordSpan");								// 密码信息提示
+var repeatPasswordSpan = $("#repeatPasswordSpan");					// 重复密码信息提示
+var emailSpan = $("#emailSpan");									// 邮箱信息提示
+var verifyCodeSpan = $("#verifyCodeSpan");							// 验证码信息提示
+
+/* 处理文本提示 */
+$(function() {
+	// 离开事件处理
+	userNameInput.blur(mouseBlur);
+	passwordInput.blur(mouseBlur);
+	repeatPasswordInput.blur(mouseBlur);
+	emailInput.blur(mouseBlur);
+	verifyCodeInput.blur(mouseBlur);
+	
+	verifyCodeInput.focus(function() {
+		verifyCodeSpan.html("点击图片切换");
+		verifyCodeSpan.css("color", "#FF5");
+	});
+});
+
+/* 正则校验 */
+//用户名校验
+function checkUserName() {
+	var userNameText = userNameInput.val();							// 获取用户输入的用户名
+	var userNameReg = new RegExp("^[\\S]{3,14}$", "g");				// 用户名正则
+	
+	if (userNameText.length == 0) {
+		userNameSpan.html("为空");
+		userNameSpan.css("color", "#F55");
+		userNameInput.css("border-color", "#e00");
+		
+		return false;
+	} else if (!userNameReg.test(userNameText)) {
+		userNameSpan.html("长度:3-14");
+		userNameSpan.css("color", "#F55");
+		userNameInput.css("border-color", "#e00");
+		
+		return false;
+	} else {
+		$.ajax({
+			url:"/SimpleSteam/RegistServlet",
+			data:{method:"AJAXExistenceName", userName:userNameText},
+			type:"post",
+			dataType:"json",
+			async:false,
+			cache:false,
+			success:function(result) {
+				if (result) {
+					userNameSpan.html("用户名可用!");
+					userNameSpan.css("color", "#5F5");
+					userNameInput.css("border-color", "#0e0");
+					
+					return true;
+				} else {
+					userNameSpan.html("用户名被注册!");
+					userNameSpan.css("color", "#FF5");
+					userNameInput.css("border-color", "#e00");
+					
+					return false;
+				}
+			}
+		});
+	}
+}
+// 密码校验
+function checkPassword() {
+	var passwordText = passwordInput.val();							// 获取用户输入的密码
+	var passwordReg = new RegExp("^[\\S]{6,18}$", "g");			 	// 密码正则
+	
+	if (passwordText.length == 0) {
+		passwordSpan.html("为空");
+		passwordSpan.css("color", "#F55");
+		passwordInput.css("border-color", "#e00");
+		
+		return false;
+	} else if (!passwordReg.test(passwordText)) {
+		passwordSpan.html("长度:6-18");
+		passwordSpan.css("color", "#F55");
+		passwordInput.css("border-color", "#e00");
+		
+		return false;
+	} else {
+		passwordSpan.html("校验通过!");
+		passwordSpan.css("color", "#5F5");
+		passwordInput.css("border-color", "#0e0");
+		
+		checkRepeatPassword();			// 再次校验
+		
+		return true;
+	}
+}
+// 确认密码校验
+function checkRepeatPassword() {
+	var passwordText = passwordInput.val();							// 获取第一密码
+	var repeatPasswordText = repeatPasswordInput.val();				// 获取第二密码
+	
+	if (repeatPasswordText.length == 0) {
+		repeatPasswordSpan.html("为空");
+		repeatPasswordSpan.css("color", "#F55");
+		repeatPasswordInput.css("border-color", "#e00");
+		
+		return false;
+	} else if (passwordText != repeatPasswordText) {
+		repeatPasswordSpan.html("请重复输入");
+		repeatPasswordSpan.css("color", "#F55");
+		repeatPasswordInput.css("border-color", "#e00");
+		
+		return false;
+	} else {
+		repeatPasswordSpan.html("校验通过!");
+		repeatPasswordSpan.css("color", "#5F5");
+		repeatPasswordInput.css("border-color", "#0e0");
+		
+		return true;
+	}
+}
+// 邮箱校验
+function checkEmail() {
+	var emailText = emailInput.val();								// 获取用户输入的邮箱
+	var emailReg = new RegExp("^[\\w\\.]{3,19}@[0-9a-zA-Z]{2,7}(\\.[a-zA-Z]{2,7})+$");// 邮箱正则
+	
+	if (emailText.length == 0) {
+		emailSpan.html("为空!");
+		emailSpan.css("color", "#F55");
+		emailInput.css("border-color", "#e00");
+		
+		return false;
+	} else if (!emailReg.test(emailText)) {
+		emailSpan.html("请输入正确格式的邮箱");
+		emailSpan.css("color", "#F55");
+		emailInput.css("border-color", "#e00");
+		
+		return false;
+	} else {
+		$.ajax({
+			url:"/SimpleSteam/RegistServlet",
+			data:{method:"AJAXExistenceEmail", email:emailText},
+			type:"post",
+			dataType:"json",
+			async:false,
+			cache:false,
+			success:function(result) {
+				if (result) {
+					emailSpan.html("邮箱可用!");
+					emailSpan.css("color", "#5F5");
+					emailInput.css("border-color", "#0e0");
+					
+					return true;
+				} else {
+					emailSpan.html("邮箱被注册!");
+					emailSpan.css("color", "#FF5");
+					emailInput.css("border-color", "#e00");
+					
+					return false;
+				}
+			}
+		});
+	}
+}
+// 验证码校验
+function checkVerifyCode() {
+	var verifyCodeText = verifyCodeInput.val();						// 获取用户输入验证码
+	var verifyCodeReg = new RegExp("^[0-9a-zA-Z]{4}$", "g");			// 验证码正则
+	
+	if (verifyCodeText.length == 0) {
+		verifyCodeSpan.html("为空!");
+		verifyCodeSpan.css("color", "#F77");
+		verifyCodeInput.css("border-color", "#e00");
+		
+		return false;
+	} else if (!verifyCodeReg.test(verifyCodeText)) {
+		verifyCodeSpan.html("格式异常!");
+		verifyCodeSpan.css("color", "#F77");
+		verifyCodeInput.css("border-color", "#e00");
+		
+		return false;
+	} else {
+		$.ajax({
+			url:"/SimpleSteam/RegistServlet",
+			data:{method:"AJAXCheckVerifyCode", verifyCode:verifyCodeText},
+			type:"post",
+			dataType:"json",
+			ascyn:false,
+			cache:false,
+			success:function(result) {
+				if (result) {
+					verifyCodeSpan.html("校验通过");
+					verifyCodeSpan.css("color", "#5F5");
+					verifyCodeInput.css("border-color", "#0e0");
+					
+					return true;
+				} else {
+					verifyCodeSpan.html("验证码有误!请重新输入或换一张!");
+					verifyCodeSpan.css("color", "#F55");
+					verifyCodeInput.css("border-color", "#e00");
+					
+					return false;
+				}
+			}
+		});
+	}
+}
+
+// input失去
+function mouseBlur() {
+	// 进行属性校验
+	if (this.id == "userNameInput") {
+		checkUserName();
+	} else if (this.id == "passwordInput") {
+		checkPassword();
+	} else if (this.id == "repeatPasswordInput") {
+		checkRepeatPassword();
+	} else if (this.id == "emailInput") {
+		checkEmail();
+	} else if (this.id == "verifyCodeInput") {
+		checkVerifyCode();
+	}
+}
+
+// 验证码切换
+$("#repeatVerifyCode").click(function() {
+	$("#verifyCodeImage").attr("src", "/SimpleSteam/SimpleVerifyCode?a=" + new Date().getTime());
+});
+
+// 最后验证
+submitBtn.click(function() {
+	var isSuccess = true;
+	
+	isSuccess = checkUserName() && isSuccess;
+	isSuccess = checkPassword() && isSuccess;
+	isSuccess = checkRepeatPassword() && isSuccess;
+	isSuccess = checkEmail() && isSuccess;
+	isSuccess = checkVerifyCode() && isSuccess;
+	
+	return isSuccess;
+});

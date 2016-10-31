@@ -1,0 +1,114 @@
+package top.qlbxxxz.servlet;
+
+import java.io.IOException;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import cn.itcast.servlet.BaseServlet;
+
+import top.qlbxxxz.dao.*;
+import top.qlbxxxz.tools.SimpleUUID;
+
+public class RegistServlet extends BaseServlet {
+
+	private static final long serialVersionUID = 1L;
+
+	//	实例化DBHelper
+	public DBHelper dbhelper = new DBHelper();   
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+	
+	public String regist(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException {
+		
+//		定义网页提交过来的userName为name
+		String name = request.getParameter("userName");
+//		定义网页提交过来的password为password
+		String password = request.getParameter("password");
+//		定义网页提交过来的过来的email为email
+		String email = request.getParameter("email");
+//		定义网页提交过来的验证码
+		String verifyCode = request.getParameter("verifyCode");
+		
+//		获取注册网页传过来的信息
+		HttpSession session = request.getSession();
+//		获取用户输入的用户名
+		session.setAttribute(name, response);
+//		获取用户输入的密码
+		session.setAttribute(password, response);
+//		获取用户输入的邮箱
+		session.setAttribute(email, response);
+//		获取用户输入的验证码
+		session.setAttribute(verifyCode, response);
+
+//		判断是否能通过校验		
+		if(submitCheck(name, password, email, verifyCode)){
+//			判断数据库是否开启(如果没开启开启数据库)
+			if(dbhelper.isclosed()){
+//				开启数据库
+				dbhelper.startMysql();
+			}
+			
+//			判断数据库中是否有此用户
+			if(submitUsername(name) && submitEmail(email)){
+//				如果为真数据库中没有此用户
+				try {
+//					往数据库中添加此用户
+					dbhelper.insert(SimpleUUID.getUUID(), name, password, email, false, SimpleUUID.getUUID() + SimpleUUID.getUUID());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}else {
+//				校验不通过,跳转到非法注册页面
+				return null;
+			}
+		}else {
+			
+//			校验不通过,跳转到非法注册页面
+			return null;
+		}
+		return null;
+	}
+//	提交时进行校验
+	public boolean submitCheck(String name, String password, String email, String verifyCode){
+//		定义校验是通过的
+		boolean isSuccess = true;
+//		判断用户名格式是否正确
+		isSuccess = name.matches("[\\S]{3,14}") && isSuccess;
+//		判断密码格式是否正确
+		isSuccess = password.matches("[\\S]{6,18}") && isSuccess;
+//		判断邮箱格式是否正确
+		isSuccess = email.matches("[\\w\\.]{3,19}@[0-9a-zA-Z]{2,7}(\\.[a-zA-Z]{2,7})+") && isSuccess;
+//		判断验证码格式是否正确
+		isSuccess = verifyCode.matches("[0-9a-zA-Z]{4}") && isSuccess;
+//		返回校验是否通过
+		return isSuccess;
+	}
+	
+//	校验数据库是否有这个用户名
+	public boolean submitUsername(String name){
+//		判断数据库中是否有这个用户名
+		if(dbhelper.select("user", "name", name, "name") != null){		
+//			数据库中有此用户，返回false
+			return false;
+		}
+//		数据库中没有此用户，返回true往下进行判断
+		return true;
+	}
+	
+//	校验数据库中是否有这个邮箱
+	public boolean submitEmail(String email) {
+//		判断数据中是否用这个邮箱
+		if(dbhelper.select("user", "email", email, "email") != null){		
+//			数据库中有此邮箱，返回false
+			return false;
+		}
+//		数据库中没有此邮箱，返回true往下进行判断
+		return true;
+	}
+}
